@@ -34,6 +34,7 @@ $(document).ready(function(){
   }
 
   function startGame(){
+    boardArray = ["", "", "", "", "", "", "", "", ""];
     numbers = [1,2,3,4,5,6,7,8,9];
     state = 'machine';
     machinePick();
@@ -49,12 +50,33 @@ $(document).ready(function(){
     boardArray[index] = machineSymbol;
     console.log("boardArray" + boardArray);
     display(boardArray);
+    state = "user";
+    console.log("state: " + state);
+  }
+
+  function userPick(button){
+    // number of square clicked
+    var num = parseInt(button.slice(-1));
+    // array index of number
+    var index = numbers.indexOf(num);
+    console.log("num: " + num);
+    console.log("numbers: " + numbers);
+    console.log("index: " + index);
+    // delete number
+    usedSquare(index);
+    // pulsation effect
+    var str = "#".concat(button);
+    $(str).effect("pulsate", {times:1}, 40);
+    boardArray[num - 1] = userSymbol;
+    display(boardArray);
+    state = "machine";
   }
 
   $(".square").click(function(){
     var val = $(this).attr("id");
-    var str = "#".concat(val);
-    $(str).effect("pulsate", {times:1}, 40);
+    if (state == "user"){
+      userPick(val);
+    }
   });
 
   display(boardArray);
