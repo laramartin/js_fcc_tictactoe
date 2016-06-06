@@ -62,6 +62,10 @@ $(document).ready(function(){
     console.log("num: " + num);
     console.log("numbers: " + numbers);
     console.log("index: " + index);
+    // if square has been picked, ignore
+    if (index == -1){
+      return;
+    }
     // delete number
     usedSquare(index);
     // pulsation effect
