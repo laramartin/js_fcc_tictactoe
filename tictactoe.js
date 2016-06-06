@@ -74,6 +74,7 @@ $(document).ready(function(){
     boardArray[num - 1] = userSymbol;
     display(boardArray);
     state = "machine";
+    console.log("numbers: " + numbers);
   }
 
   $(".square").click(function(){
