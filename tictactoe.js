@@ -1,14 +1,38 @@
 $(document).ready(function(){
   var boardArray = ["", "", "", "", "", "", "", "", ""];
-  // var boardArray = ["O", "O", "", "", "", "", "", "", ""];
-  var userSymbol = "O";
-  var machineSymbol = "X";
+  var userSymbol = "";
+  var machineSymbol = "";
 
   // "user" -> user turn
   // "machine" -> machine turn
   // "initial" -> initial state
   var state = 'initial';
 
+  // initial popup to set symbol for user & machine
+  function chooseSymbol() {
+    $("#chooseSymbolDialog").dialog({
+      resizable: false,
+      height:140,
+      modal: true,
+      autoOpen: true,
+      buttons: {
+        "X": function() {
+          userSymbol = "X";
+          machineSymbol = "O";
+          $( this ).dialog( "close" );
+          startGame();
+        },
+        "O": function() {
+          userSymbol = "O";
+          machineSymbol = "X";
+          $( this ).dialog( "close" );
+          startGame();
+        }
+      }
+    });
+  }
+
+  // display board on UI
   function display(array){
     for (var i = 0; i < array.length; i++ ){
       var id = "#square".concat(i+1);
@@ -17,21 +41,21 @@ $(document).ready(function(){
     }
   }
 
+  // get random number for machine pick, no AI (sorry!)
   function randomNum(){
     var index = Math.floor(Math.random() * boardArray.length);
-    console.log("random num: " + index);
     return index;
   }
 
+  // start a new game
   function startGame(){
+    state = "machine";
     clearTimeout();
     boardArray = ["", "", "", "", "", "", "", "", ""];
-    state = 'machine';
     machinePick();
   }
-  // to test
-  display(boardArray);
 
+  // check if there's a three in line
   function threeInLine(array) {
     // horizontal line
     for (var i = 0; i < 9;) {
@@ -56,72 +80,76 @@ $(document).ready(function(){
     return false;
   }
 
+  // continue playing if there's empty squares
   function continuePlaying(){
       for (var i = 0; i < boardArray.length; i++) {
-        console.log("continue index: " + i);
-        console.log("boardArray[i]: " + boardArray[i]);
-        console.log("continue bool: " + boardArray[i] == "");
-        console.log("type of: " + typeof boardArray[i]);
         if (boardArray[i] === ""){
           return true;
         }
       }
+      // tie!
       endGameEffect();
   }
 
+  // board effect when game ends (win or lose)
   function endGameEffect(){
       $("#board").effect("pulsate", {times:1}, 1000);
       setTimeout(function() { startGame(); }, 1500);
   }
 
+  // machine picks a random square (no AI, sorry)
   function machinePick(){
     state = 'machine';
     // call randomNum to pick an index
     var index = randomNum();
-    console.log("boardArray[index]: " + boardArray[index]);
     // if square is used, get another randomNum
     if (boardArray[index] !== ""){
       return machinePick();
     }
+    // add symbol to board and display it
     boardArray[index] = machineSymbol;
     display(boardArray);
+    // if there's a line you win
     var isLine = threeInLine(boardArray);
     if (isLine){
       state = "initial";
       return endGameEffect();
     }
+    // if no line, check if continue playing or there's a tie
     if (continuePlaying()){
       state = "user";
       userPick();
     }
   }
 
+  // user gets to pick a square
   function userPick(button){
     if (state !== "user"){
       return;
     }
-    console.log("boardArray: " + boardArray);
     // number of square clicked
     var index = parseInt(button.slice(-1));
     // if square has been picked, ignore
     if (boardArray[index] !== ""){
       return;
     }
-    // buttonEffect(button);
+    // add symbol to board and display it
     boardArray[index] = userSymbol;
     display(boardArray);
+    // if there's a line you win
     var isLine = threeInLine(boardArray);
-    console.log("isLine: " + isLine);
     if (isLine){
       state = "initial";
       return endGameEffect();
     }
+    // if no line, check if continue playing or there's a tie
     if (continuePlaying()){
       state = "machine";
       machinePick();
     }
   }
 
+  // get button clicked by user
   $(".square").click(function(){
     var val = $(this).attr("id");
     if (state == "user"){
@@ -130,5 +158,5 @@ $(document).ready(function(){
   });
 
   display(boardArray);
-  startGame();
+  chooseSymbol();
 });
