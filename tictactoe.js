@@ -63,13 +63,12 @@ $(document).ready(function(){
           return true;
         }
       }
-      return false;
+      startGame();
   }
 
   function winEffect(){
       boardEffect();
       setTimeout(function() { startGame(); }, 1500);
-      startGame();
   }
 
   function machinePick(){
@@ -81,14 +80,16 @@ $(document).ready(function(){
     }
     boardArray[index] = machineSymbol;
     display(boardArray);
-    state = "user";
     var isLine = threeInLine(boardArray);
     if (isLine){
+      state = "initial";
       winEffect();
     }
+    state = "user";
   }
 
   function userPick(button){
+    console.log("boardArray: " + boardArray);
     // number of square clicked
     var index = parseInt(button.slice(-1));
     // if square has been picked, ignore
@@ -99,7 +100,9 @@ $(document).ready(function(){
     boardArray[index] = userSymbol;
     display(boardArray);
     var isLine = threeInLine(boardArray);
+    console.log("isLine: " + isLine);
     if (isLine){
+      state = "initial";
       winEffect();
     }
     if (continuePlaying()){
