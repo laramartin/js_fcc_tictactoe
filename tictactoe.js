@@ -1,6 +1,5 @@
 $(document).ready(function(){
   var boardArray = ["", "", "", "", "", "", "", "", ""];
-  var numbers = [1,2,3,4,5,6,7,8,9];
   var userSymbol = "O";
   var machineSymbol = "X";
 
@@ -14,67 +13,99 @@ $(document).ready(function(){
       var id = "#square".concat(i+1);
       var html = array[i];
       $(id).html(html);
-      console.log("id: " + id);
-      console.log("html: " + html);
     }
   }
 
-  function usedSquare(index){
-    // at position "index" delete 1 item
-    var deleteIndex = numbers.splice(index, 1);
-  }
-
   function randomNum(){
-    var index = Math.floor(Math.random() * numbers.length);
-    // // at position "num" delete 1 item
-    // var deleteIndex = numbers.splice(index, 1);
+    var index = Math.floor(Math.random() * boardArray.length);
     console.log("random num: " + index);
-    console.log("numbers: " + numbers);
     return index;
   }
 
   function startGame(){
+    clearTimeout();
     boardArray = ["", "", "", "", "", "", "", "", ""];
-    numbers = [1,2,3,4,5,6,7,8,9];
     state = 'machine';
     machinePick();
   }
 
+  function boardEffect(){
+    $("#board").effect("pulsate", {times:1}, 1000);
+  }
+
+  function threeInLine(array) {
+    // horizontal line
+    for (var i = 0; i < 9;) {
+      if (boardArray[i] !== "" && boardArray[i] == boardArray[i+1] && boardArray[i+1] == boardArray[i+2]){
+        return true;
+      }
+      i+=3;
+    }
+    // vertical line
+    for (var i = 0; i < 3;) {
+      if (boardArray[i] !== "" && boardArray[i] == boardArray[i+3] && boardArray[i+3] == boardArray[i+6]){
+        return true;
+      }
+      i++;
+    }
+    // diagonal line
+    if (boardArray[0] !== "" && boardArray[0] == boardArray[4] && boardArray[4] == boardArray[8]){
+      return true;
+    } else if (boardArray[2] !== "" && boardArray[2] == boardArray[4] && boardArray[4] == boardArray[6]) {
+      return true;
+    }
+    return false;
+  }
+
+  function continuePlaying(){
+      for (var i = 0; i < boardArray.length; i++) {
+        if (boardArray[i] == ""){
+          return true;
+        }
+      }
+      return false;
+  }
+
+  function winEffect(){
+      boardEffect();
+      setTimeout(function() { startGame(); }, 1500);
+      startGame();
+  }
+
   function machinePick(){
-    // call randomnum to pick an index
+    // call randomNum to pick an index
     var index = randomNum();
-    console.log("index: " + index);
-    // call usedSquare to delete that index
-    usedSquare(index);
-    console.log("boardArray" + boardArray);
+    // if square is used, get another randomNum
+    if (boardArray[index] !== ""){
+      machinePick();
+    }
     boardArray[index] = machineSymbol;
-    console.log("boardArray" + boardArray);
     display(boardArray);
     state = "user";
-    console.log("state: " + state);
+    var isLine = threeInLine(boardArray);
+    if (isLine){
+      winEffect();
+    }
   }
 
   function userPick(button){
     // number of square clicked
-    var num = parseInt(button.slice(-1));
-    // array index of number
-    var index = numbers.indexOf(num);
-    console.log("num: " + num);
-    console.log("numbers: " + numbers);
-    console.log("index: " + index);
+    var index = parseInt(button.slice(-1));
     // if square has been picked, ignore
-    if (index == -1){
+    if (boardArray[index] !== ""){
       return;
     }
-    // delete number
-    usedSquare(index);
-    // pulsation effect
-    var str = "#".concat(button);
-    $(str).effect("pulsate", {times:1}, 40);
-    boardArray[num - 1] = userSymbol;
+    // buttonEffect(button);
+    boardArray[index] = userSymbol;
     display(boardArray);
-    state = "machine";
-    console.log("numbers: " + numbers);
+    var isLine = threeInLine(boardArray);
+    if (isLine){
+      winEffect();
+    }
+    if (continuePlaying()){
+      state = "machine";
+      machinePick();
+    }
   }
 
   $(".square").click(function(){
