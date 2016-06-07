@@ -1,5 +1,6 @@
 $(document).ready(function(){
   var boardArray = ["", "", "", "", "", "", "", "", ""];
+  // var boardArray = ["O", "O", "", "", "", "", "", "", ""];
   var userSymbol = "O";
   var machineSymbol = "X";
 
@@ -28,10 +29,8 @@ $(document).ready(function(){
     state = 'machine';
     machinePick();
   }
-
-  function boardEffect(){
-    $("#board").effect("pulsate", {times:1}, 1000);
-  }
+  // to test
+  display(boardArray);
 
   function threeInLine(array) {
     // horizontal line
@@ -59,36 +58,48 @@ $(document).ready(function(){
 
   function continuePlaying(){
       for (var i = 0; i < boardArray.length; i++) {
-        if (boardArray[i] == ""){
+        console.log("continue index: " + i);
+        console.log("boardArray[i]: " + boardArray[i]);
+        console.log("continue bool: " + boardArray[i] == "");
+        console.log("type of: " + typeof boardArray[i]);
+        if (boardArray[i] === ""){
           return true;
         }
       }
-      startGame();
+      endGameEffect();
   }
 
-  function winEffect(){
-      boardEffect();
+  function endGameEffect(){
+      $("#board").effect("pulsate", {times:1}, 1000);
       setTimeout(function() { startGame(); }, 1500);
   }
 
   function machinePick(){
+    state = 'machine';
     // call randomNum to pick an index
     var index = randomNum();
+    console.log("boardArray[index]: " + boardArray[index]);
     // if square is used, get another randomNum
     if (boardArray[index] !== ""){
-      machinePick();
+      return machinePick();
     }
     boardArray[index] = machineSymbol;
     display(boardArray);
     var isLine = threeInLine(boardArray);
     if (isLine){
       state = "initial";
-      winEffect();
+      return endGameEffect();
     }
-    state = "user";
+    if (continuePlaying()){
+      state = "user";
+      userPick();
+    }
   }
 
   function userPick(button){
+    if (state !== "user"){
+      return;
+    }
     console.log("boardArray: " + boardArray);
     // number of square clicked
     var index = parseInt(button.slice(-1));
@@ -103,7 +114,7 @@ $(document).ready(function(){
     console.log("isLine: " + isLine);
     if (isLine){
       state = "initial";
-      winEffect();
+      return endGameEffect();
     }
     if (continuePlaying()){
       state = "machine";
